@@ -2,7 +2,8 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const EventEmitter = require('events');
-const emitter = new EventEmitter();
+const Logger = require('./logger');
+const logger = new Logger();
 
 var pathObj = path.parse(__filename);
 
@@ -20,13 +21,8 @@ fs.readdir('./', function(err, files){
     else console.log('Result', files);
 });
 
-emitter.on('messageLogged', (arg) => {
+logger.on('messageLogged', (arg) => {
     console.log('Listener called for messageLogged', arg);
 });
 
-emitter.on('logging', (arg) => {
-    console.log('Listener called for logging', arg);
-});
-
-emitter.emit('messageLogged', {id: 1, url: 'http://' });
-emitter.emit('logging', {data: 'message'}); 
+logger.log('message');
