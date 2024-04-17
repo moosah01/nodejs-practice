@@ -58,15 +58,14 @@ app.put('/api/courses/:id', (req,res)=>{
         res.status(404).send('The course with the given ID was not found');
         return;
     }
-    const schema = Joi.object({
-        name: Joi.string().min(5).required()
-    });
 
-    const validationResult = schema.validate(req.body);
-    if(validationResult.error){
-        res.status(400).send(validationResult.error.details[0].message);
+    const {error} = validateCourse(req.body); // equivalent to result.error
+
+    if(error){
+        res.status(400).send(error.details[0].message);
         return;
     }
+
     course.name = req.body.name;
     const {id, ...updatedCourse} = course;
     // res.send({
@@ -78,6 +77,21 @@ app.put('/api/courses/:id', (req,res)=>{
         course: updatedCourse
     })
 })
+
+app.delete('/api/courses/:id', (req, res)=> {
+    const course  = courses.find( c=> c.id === parseInt(req.params.id));
+    if(!course) {
+        res.status(404).send('The course with the given ID was not found');
+        return;
+    }
+    const index = courses.indexOf(course);
+    courses.splice(index, 1); //go to the index and remove 1 object
+    res.send({
+        message: 'Course deleted',
+        course: course
+    });
+
+});
 
 app.get('/api/courses/:id', (req, res)=> { 
     const course = courses.find(c=> c.id === parseInt(req.params.id));
@@ -107,3 +121,11 @@ const port = process.env.PORT || 3000;
 app.listen(port, ()=>{
     console.log(`Listneing on port ${port}...`);
 })
+
+function validateCourse(course){
+    const schema = Joi.object({
+        name: Joi.string().min(5).required()
+    });
+    
+    return schema.validate(course);
+}
