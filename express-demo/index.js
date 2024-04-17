@@ -52,6 +52,33 @@ app.post('/api/courses', (req, res)=> {
     })
 });
 
+app.put('/api/courses/:id', (req,res)=>{
+    const course = courses.find(c=> c.id === parseInt(req.params.id));
+    if(!course){
+        res.status(404).send('The course with the given ID was not found');
+        return;
+    }
+    const schema = Joi.object({
+        name: Joi.string().min(5).required()
+    });
+
+    const validationResult = schema.validate(req.body);
+    if(validationResult.error){
+        res.status(400).send(validationResult.error.details[0].message);
+        return;
+    }
+    course.name = req.body.name;
+    const {id, ...updatedCourse} = course;
+    // res.send({
+    //     message: 'Course updated',
+    //     course: course
+    // })
+    res.send({
+        message: 'Course updated',
+        course: updatedCourse
+    })
+})
+
 app.get('/api/courses/:id', (req, res)=> { 
     const course = courses.find(c=> c.id === parseInt(req.params.id));
     if(!course){
@@ -62,13 +89,17 @@ app.get('/api/courses/:id', (req, res)=> {
 });
 
 
-app.get('/api/posts/:year/:month', (req,res)=>{
-    res.send(req.params);
-});
+// app.get('/api/posts/:year/:month', (req,res)=>{
+//     res.send(req.params);
+// });
 
 // /api/posts/2018/1?sortBy=name => query string is stored in key value pairs
 app.get('/api/posts/:year/:month', (req,res)=>{
-    res.send(req.query);
+    res.send({
+        year: req.params.year,
+        month: req.params.month,
+        query: req.query
+    });
 });
 
 const port = process.env.PORT || 3000;
