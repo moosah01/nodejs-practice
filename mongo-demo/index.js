@@ -19,6 +19,8 @@ const courseSchema = new Schema({
     type: String,
     required: true,
     enum: ["web", "mobile", "network"],
+    lowercase: true,
+    trim: true,
   },
   author: String,
   tags: {
@@ -39,6 +41,8 @@ const courseSchema = new Schema({
     },
     min: 10,
     max: 200,
+    get: (v) => Math.round(v),
+    set: (v) => Math.round(v),
   },
 });
 
